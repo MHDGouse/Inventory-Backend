@@ -52,25 +52,7 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
-// Add products to inventory 
-export const addproducts = async (req, res) => {
-  const { barcode, quantity, expiryDate } = req.body;
 
-  try {
-    const product = await Product.findOne({ barcode });
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found. Please register it first.' });
-    }
-
-    product.quantity += quantity;
-    if (expiryDate) product.expiryDate = new Date(expiryDate);
-
-    await product.save();
-    res.json({ message: 'Inventory updated', product });
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating inventory', error });
-  }
-};
 
 // Get product details by barcode || name
 export const getDetailById = async (req, res) => {

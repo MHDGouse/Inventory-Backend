@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import ConnectDB from "./config/db.js";
 import products from "./routes/product.js";
+import inventory from "./routes/inventory.js";
+import sales from "./routes/sales.js";
 
 const app = express();
 
@@ -18,7 +20,7 @@ ConnectDB().catch(err => {
   // Middleware Order Matters!
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: ["http://localhost:3000","https://inventory-management-three-tau.vercel.app"],
       methods: ["GET", "POST", "PUT", "DELETE"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true
@@ -28,6 +30,13 @@ ConnectDB().catch(err => {
 
 // Routes for product operations
 app.use("/api/V1/products", products);
+
+// Routes for inventory operations
+app.use("/api/V1/inventory", inventory);
+
+// Routes for sales operations
+app.use("/api/V1/sales", sales);
+
 
 // Basic route for testing server status
 app.get("/", (req, res) => {
