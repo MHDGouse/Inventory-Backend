@@ -6,10 +6,10 @@ export const registerProducts = async (req, res) => {
     barcode,
     name,
     category,
-    unit,
-    price,
-    sellingPrice,
-    sellingPriceShopkeeper,
+    units,
+    costPrice,
+    retailPrice,
+    wholeSalePrice,
     image,
   } = req.body;
 
@@ -25,10 +25,10 @@ export const registerProducts = async (req, res) => {
       barcode,
       name,
       category,
-      unit,
-      price,
-      sellingPrice,
-      sellingPriceShopkeeper,
+      units,
+      costPrice,
+      retailPrice,
+      wholeSalePrice,
       image,
     });
 

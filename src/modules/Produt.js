@@ -6,23 +6,20 @@ const productSchema = new Schema({
     category: { 
       type: String, 
       required: true, 
-      enum: ['Milk', 'Curd', 'Ice-Cream', 'Juice', 'Paneer', 'Other'], // Add more as needed
+      enum: ['milk', 'curd', 'ice-cream', 'juice', 'paneer', 'other'], // Add more as needed
     },
-    quantity: { type: Number, default: 0 },
-    unit: { 
+    units: { 
       type: String, 
       required: true, 
-      enum: ['liters','milliliter', 'grams', 'kilograms', 'units'], // Measurement units
+      enum: ['liters','cans'], // Measurement units
       default: 'units',
     },
     image:{
       type: String,
     },
-    price: { type: Number, }, // Price you buy it for
-    sellingPrice: { type: Number, required: true }, // Price for normal customers
-    sellingPriceShopkeeper: { type: Number, required: true }, // Discounted price for shopkeepers
-    addedDate: { type: Date, default: Date.now }, // When it was added to inventory
-  expiryDate:{ type:Date}
+    costPrice: { type: Number, }, // Price you buy it for
+    retailPrice: { type: Number, required: true}, // Price for normal customers
+    wholeSalePrice: { type: Number, required: true }, // Discounted price for shopkeepers
 })
 const product= mongoose.model("Products", productSchema);
 

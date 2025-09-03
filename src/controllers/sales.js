@@ -1,37 +1,48 @@
 import Sales from '../modules/sales.js';
 import Product from '../modules/Produt.js';
 
-// Add a sale
+// Add multiple sales
 export const addSale = async (req, res) => {
-  const { productId, quantity, customerType } = req.body;
+  const items = req.body; // Expecting an array
+  console.log("Request body:", items);
+
+  if (!Array.isArray(items)) {
+    return res.status(400).json({ message: 'Request body should be an array' });
+  }
 
   try {
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+    const salesRecords = [];
+
+    for (const item of items) {
+      const { productId, name, quantity, customerType,totalPrice } = item;
+
+      const product = await Product.findById(productId);
+      if (!product) {
+        console.warn(`Product not found: ${productId}`);
+        continue;
+      }
+
+
+
+      // Create sale record
+      const sale = new Sales({
+        product: product._id,
+        name,
+        quantity,
+        totalPrice,
+        customerType
+      });
+
+      await sale.save();
+      await product.save();
+
+      salesRecords.push(sale);
     }
 
-    // Choose price based on customer type
-    const price = customerType === 'shopkeeper' ? product.sellingPriceShopkeeper : product.sellingPrice;
-    const totalPrice = price * quantity;
-
-    // Create sale record
-    const sale = new Sales({
-      product: product._id,
-      quantity,
-      totalPrice,
-      customerType
-    });
-
-    await sale.save();
-
-    // Optionally, update product quantity in stock
-    product.quantity = product.quantity - quantity;
-    await product.save();
-
-    res.status(201).json({ message: 'Sale recorded', sale });
+    res.status(201).json({ message: 'Sales recorded', sales: salesRecords });
   } catch (error) {
-    res.status(500).json({ message: 'Error recording sale', error });
+    console.error("Error:", error);
+    res.status(500).json({ message: 'Error recording sales', error });
   }
 };
 
