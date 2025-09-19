@@ -5,6 +5,7 @@ import ConnectDB from "./config/db.js";
 import products from "./routes/product.js";
 import inventory from "./routes/inventory.js";
 import sales from "./routes/sales.js";
+import analytics from "./routes/analytics.js";
 
 const app = express();
 
@@ -20,7 +21,7 @@ ConnectDB().catch(err => {
   // Middleware Order Matters!
   app.use(
     cors({
-      origin: ["http://localhost:3000","https://inventory-management-three-tau.vercel.app"],
+      origin: ["http://localhost:3000","https://inventory-management-three-tau.vercel.app", "https://arfat-enterprise.mhdgouse.me"],
       methods: ["GET", "POST", "PUT", "DELETE"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true
@@ -37,6 +38,8 @@ app.use("/api/V1/inventory", inventory);
 // Routes for sales operations
 app.use("/api/V1/sales", sales);
 
+// Routes for analytics operations
+app.use("/api/V1/analytics", analytics);
 
 // Basic route for testing server status
 app.get("/", (req, res) => {

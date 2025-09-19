@@ -4,9 +4,10 @@ const salesSchema = new Schema({
   product: { type: Schema.Types.ObjectId, ref: 'Products', required: true },
   name: { type: String, required: true },
   quantity: { type: Number, required: true },
-  saleDate: { type: Date, default: Date.now },
   totalPrice: { type: Number, required: true },
-  customerType: { type: String, enum: ['retail', 'wholesale'], default: 'retail' }
+  customerType: { type: String },
+  saleDate: { type: Date, default: Date.now },
+  transactionId: { type: String }  // Add this field
 });
 
 const Sales = mongoose.model('Sales', salesSchema);
