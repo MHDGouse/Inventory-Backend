@@ -21,7 +21,7 @@ ConnectDB().catch(err => {
   // Middleware Order Matters!
   app.use(
     cors({
-      origin: ["http://localhost:3000","https://inventory-management-three-tau.vercel.app", "https://arfat-enterprise.mhdgouse.me"],
+      origin: ["http://localhost:3000","https://inventory-management-three-tau.vercel.app", "https://arfat-enterprises.mhdgouse.me"],
       methods: ["GET", "POST", "PUT", "DELETE"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true
