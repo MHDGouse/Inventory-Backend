@@ -2,23 +2,23 @@ import Sales from '../modules/sales.js';
 import Product from '../modules/Produt.js';
 import mongoose from 'mongoose';
 
+
 // Add multiple sales
 export const addSale = async (req, res) => {
   const items = req.body; // Expecting an array
   console.log("Request body:", items);
 
-  if (!Array.isArray(items)) {
-    return res.status(400).json({ message: 'Request body should be an array' });
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ message: 'Request body should be a non-empty array' });
   }
 
   try {
-    const salesRecords = [];
-
-    // Generate a unique transaction ID
+    const transactionItems = [];
+    // Generate a unique transaction ID for this batch
     const transactionId = new mongoose.Types.ObjectId().toString();
 
     for (const item of items) {
-      const { productId, name, quantity, customerType,totalPrice } = item;
+      const { productId, name, quantity, customerType, totalPrice } = item;
 
       const product = await Product.findById(productId);
       if (!product) {
@@ -26,35 +26,40 @@ export const addSale = async (req, res) => {
         continue;
       }
 
-
-
-      // Create sale record
-      const sale = new Sales({
+      transactionItems.push({
         product: product._id,
         name,
         quantity,
         totalPrice,
-        customerType,
-        transactionId  // Add the same transaction ID to all items in this request
+        customerType
       });
-
-      await sale.save();
-      await product.save();
-
-      salesRecords.push(sale);
+      // Note: Product stock update logic was missing in original code, skipping here as well/
     }
 
-    res.status(201).json({ message: 'Sales recorded', sales: salesRecords });
+    if (transactionItems.length === 0) {
+      return res.status(400).json({ message: 'No valid products to record' });
+    }
+
+    // Create a SINGLE sale record for the transaction containing all items
+    const sale = new Sales({
+      transaction: transactionItems,
+      transactionId: transactionId
+    });
+
+    await sale.save();
+
+    res.status(201).json({ message: 'Sales recorded', sale });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ message: 'Error recording sales', error });
   }
 };
 
+``
 // Get all sales
 export const getSales = async (req, res) => {
   try {
-    const sales = await Sales.find().populate('product');
+    const sales = await Sales.find().populate('transaction.product');
     res.json(sales);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching sales', error });
@@ -76,16 +81,16 @@ export const getSalesByDate = async (req, res) => {
         $gte: startDate,
         $lt: endDate
       }
-    }).populate('product');
+    }).populate('transaction.product');
 
     if (sales.length === 0) {
       return res.status(404).json({ message: 'No sales found for this date' });
     }
 
-    res.json({ 
-      message: `Sales for ${date}`, 
+    res.json({
+      message: `Sales for ${date}`,
       count: sales.length,
-      sales 
+      sales
     });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching sales by date', error });
@@ -106,12 +111,12 @@ export const getSalesByDateRange = async (req, res) => {
         $gte: start,
         $lt: end
       }
-    }).populate('product').sort({ saleDate: -1 });
+    }).populate('transaction.product').sort({ saleDate: -1 });
 
-    res.json({ 
-      message: `Sales from ${startDate} to ${endDate}`, 
+    res.json({
+      message: `Sales from ${startDate} to ${endDate}`,
       count: sales.length,
-      sales 
+      sales
     });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching sales by date range', error });
@@ -142,15 +147,15 @@ export const editSale = async (req, res) => {
       id,
       updateData,
       { new: true }
-    ).populate('product');
-    
+    ).populate('transaction.product');
+
     if (!updatedSale) {
       return res.status(404).json({ message: 'Sale not found' });
     }
-    
-    res.json({ 
-      message: 'Sale updated successfully', 
-      sale: updatedSale 
+
+    res.json({
+      message: 'Sale updated successfully',
+      sale: updatedSale
     });
   } catch (error) {
     console.error("Error:", error);
